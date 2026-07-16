@@ -1,38 +1,15 @@
 from app.db import db_connection
 from flask import Blueprint, jsonify, request
-import os
-from dotenv import load_dotenv
 import jwt
 import psycopg
 from datetime import datetime
 from app import StatusCodesAPI
-
+from app import get_token_info
 
 
 salas_bp = Blueprint("salas", __name__, url_prefix="/sala")
 
 
-
-#Carregar variáveis de ambiente para o sistema
-load_dotenv()
-
-#Carregar variável da chave secreta de token
-SECRET_KEY = os.environ.get("SECRET_KEY")
-
-
-###
-### FUNÇÃO PARA RETORNAR TOKEN FORNECIDO NO HEADER 'AUTHORIZATION'
-###
-def get_token_info(token):
-
-    
-    payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    
-    nome = payload["nome"]
-    id_pessoa = payload["id_pessoa"]
-    tipo = payload["tipo"]
-    
-    return nome, id_pessoa, tipo
 
 
 
@@ -106,7 +83,19 @@ def criar_sala(n_sala):
                 
         #CHAVE DUPLICADA (SALA JÁ EXISTE)
         except psycopg.errors.UniqueViolation as uv:
-            response = {'Status': StatusCodesAPI['internal_error'], 'Errors': 'Sala já existe. Tente outra'}
+            response = {'Status': StatusCodesAPI['api_error'], 'Errors': 'Sala já existe. Tente outra'}
+            
+            #Caso ocorra algum problema, faz rollback
+            if(conn):
+                conn.rollback()
+            
+            
+            return jsonify(response), response['Status']
+        
+        #NÚMERO DE SALA INVÁLIDO
+        
+        except psycopg.DataError as de:
+            response = {'Status': StatusCodesAPI['api_error'], 'Errors': 'Número de sala inválido'}
             
             #Caso ocorra algum problema, faz rollback
             if(conn):
@@ -117,7 +106,10 @@ def criar_sala(n_sala):
         
         
         except (psycopg.DatabaseError) as dbe:
-            response = {'Status': StatusCodesAPI['internal_error'], 'Errors': str(dbe)}
+            
+            msg = str(dbe).split("\n")[0].strip()
+            
+            response = {'Status': StatusCodesAPI['internal_error'], 'Errors': msg}
             
             #Caso ocorra algum problema, faz rollback
             if(conn):

@@ -1,37 +1,14 @@
 from app.db import db_connection
 from flask import Blueprint, jsonify, request
-from dotenv import load_dotenv
-import os
 import jwt
 from app import StatusCodesAPI
 import psycopg
 from datetime import datetime
+from app import get_token_info
+
 
 #Criar blueprint de reservas
 reservas_bp = Blueprint("reservas", __name__, url_prefix='/reserva')
-
-#Carregar variáveis de ambiente para o sistema
-load_dotenv()
-
-#Carregar variável da chave secreta de token
-SECRET_KEY = os.environ.get("SECRET_KEY")
-
-
-###
-### FUNÇÃO PARA RETORNAR TOKEN FORNECIDO NO HEADER 'AUTHORIZATION'
-###
-def get_token_info(token):
-
-    
-    payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    
-    nome = payload["nome"]
-    id_pessoa = payload["id_pessoa"]
-    tipo = payload["tipo"]
-    
-    return nome, id_pessoa, tipo
-
-
 
 
 ###
@@ -667,6 +644,118 @@ def cancelar_reserva(id_reserva):
         
         return jsonify(response), response['Status']
     
+    except jwt.InvalidTokenError as ite:
+        response = {'Status': StatusCodesAPI['api_error'], 'Errors': str(ite)}
+        return jsonify(response), response['Status']
+
+
+
+###
+### Função para admins visualizarem todas as reservas nos próximos 90 dias
+###
+
+@reservas_bp.route('/proximas_reservas', methods = ['GET'])
+def proximas_reservas():
+    
+    
+    try:
+        token = request.cookies.get('token')
+
+        if(token is None):
+            response = {'Status': StatusCodesAPI['api_error'], 'Errors': 'Token vazio'}
+            return jsonify(response), response['Status']
+        
+        
+        nome, id_user, tipo = get_token_info(token)
+        
+        #Validar permissões de utilizador
+        if(tipo != "admin"):
+            response = {'Status': StatusCodesAPI['api_error'], 'Errors': 'Permissão negada'}
+            return jsonify(response), response['Status']
+    
+
+        conn = None
+        cur = None
+        
+        try:
+            
+            conn = db_connection()
+            cur = conn.cursor()
+            
+            #query para obter numero de sala, nome de aluno, data/hora de inicio e fim de reserva e estado da reserva no intervalo de 90 dias
+            query_listar = '''
+            
+                SELECT s.numero_sala as "SALA", p.nome as "NOME", r.inicio_reserva as "INICIO", r.fim_reserva as "FIM", r.estado as "ESTADO", r.id_reserva as "ID RESERVA"
+                FROM Reserva r
+                JOIN Sala s ON r.sala_id_sala = s.id_sala
+                JOIN Aluno a ON r.aluno_pessoa_id = a.pessoa_id
+                JOIN Pessoa p ON a.pessoa_id = p.id
+                WHERE CURRENT_TIMESTAMP < r.inicio_reserva + INTERVAL '90 DAY'
+                ORDER BY s.numero_sala
+            
+            '''
+            #executar query
+            cur.execute(query_listar,)
+            
+            #obter array com registos retornados
+            data = cur.fetchall()
+            
+            #Verificação
+            if(len(data) == 0):
+                response = {'Status': StatusCodesAPI['success'], 'Result': []}
+                return jsonify(response), response['Status']
+            
+            
+            #array contendo as informações das reservas a retornar
+            lista_reservas = []
+            
+            
+            #adicionar a um array, cada dicionário contendo as informações de cada registo
+            for reserva in data:
+                
+                inicio_reserva = datetime.strftime(reserva['INICIO'], '%d-%m-%Y %H:%M')
+                fim_reserva = datetime.strftime(reserva['FIM'], '%d-%m-%Y %H:%M')
+                
+                res = {
+                    
+                    'ID RESERVA': reserva['ID RESERVA'],
+                    'SALA': reserva['SALA'],
+                    'NOME ALUNO': reserva['NOME'],
+                    'INICIO': inicio_reserva,
+                    'FIM': fim_reserva,
+                    'ESTADO': reserva['ESTADO']
+     
+                }
+            
+                lista_reservas.append(res)
+            
+            response = {'Status': StatusCodesAPI['success'], 'Result': lista_reservas}
+            return jsonify(response), response['Status']
+            
+            
+        except psycopg.DatabaseError as dbe:
+            response = {'Status': StatusCodesAPI['internal_error'], 'Errors': str(dbe)}
+            return jsonify(response), response['Status']
+
+        except Exception as e:
+            msg = str(e).split("\n")[0].strip()
+            
+            response = {'Status': StatusCodesAPI['internal_error'], 'Errors': msg}
+            return jsonify(response), response['Status']
+            
+        
+        finally:
+            if(cur):
+                cur.close()
+            if(conn):
+                conn.close()
+        
+        
+    
+    except jwt.ExpiredSignatureError as ese:
+        response = {'Status': StatusCodesAPI['api_error'], 'Errors': str(ese)}
+        
+        return jsonify(response), response['Status']
     except jwt.InvalidTokenError as ite:
         response = {'Status': StatusCodesAPI['api_error'], 'Errors': str(ite)}
         return jsonify(response), response['Status']

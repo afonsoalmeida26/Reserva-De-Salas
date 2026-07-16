@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import os
 from argon2.exceptions import VerifyMismatchError
 from email_validator import validate_email, EmailNotValidError
+from app import get_token_info
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/aluno")
 
@@ -49,25 +50,6 @@ def me():
         }
     }
     return jsonify(response), response['Status']
-
-
-
-
-###
-### FUNÇÃO PARA RETORNAR TOKEN FORNECIDO NO HEADER 'AUTHORIZATION'
-###
-def get_token_info(token):
-
-    
-    payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    
-    nome = payload["nome"]
-    id_pessoa = payload["id_pessoa"]
-    tipo =payload["tipo"]
-    
-    return nome, id_pessoa, tipo
-    
-    
 
 
 

@@ -1,7 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
-
+import os
+from dotenv import load_dotenv
 from app.db import db_connection
+import jwt
+
 
 #Código de retorno da API
 StatusCodesAPI = {
@@ -9,6 +12,27 @@ StatusCodesAPI = {
     'api_error': 400,
     'internal_error': 500
 }
+
+#Carregar variáveis de ambiente
+load_dotenv()
+
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
+###
+### FUNÇÃO PARA RETORNAR TOKEN FORNECIDO NO HEADER 'AUTHORIZATION'
+###
+def get_token_info(token):
+
+    
+    payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
+    
+    nome = payload["nome"]
+    id_pessoa = payload["id_pessoa"]
+    tipo = payload["tipo"]
+    
+    return nome, id_pessoa, tipo
+
 
 
 #BLUEPRINTS DAS ROTAS
