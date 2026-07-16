@@ -1,4 +1,12 @@
-.venv
+log_file.log
 .env
-__pycache__/
-*.log
+Frontend/reserva_salas.html
+requirements.txt
+app/__pycache__/__init__.cpython-313.pyc
+app/routes/__pycache__/auth.cpython-313.pyc
+app/__pycache__/db.cpython-313.pyc
+app/routes/__pycache__/salas.cpython-313.pyc
+BD/trigger.sql
+BD/function2.sql
+BD/diagrama FINAL 1.json
+app/routes/__pycache__/reservas.cpython-313.pyc
