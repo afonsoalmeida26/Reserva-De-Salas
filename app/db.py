@@ -22,7 +22,7 @@ DB_CONNECTION = os.environ.get("DB_CONNECTION")
 def db_connection():
     
     if(DB_CONNECTION):
-        db = psycopg.connect(DB_CONNECTION)
+        db = psycopg.connect(DB_CONNECTION, row_factory=dict_row)
     else:
         db = psycopg.connect(
             user= USER_DB,
