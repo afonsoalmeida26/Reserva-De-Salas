@@ -20,3 +20,7 @@ Backend de um sistema de reserva de salas com autenticação, criação, cancela
 *JWT (Autenticação segura)*
 *psycopg (Base de Dados)*
 *Flask (Rotas)*
+
+
+### NOTAS ###
+O Frontend foi criado inteiramente por IA, sendo o foco principal o Backend
