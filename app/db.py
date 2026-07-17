@@ -12,6 +12,7 @@ USER_DB = os.environ.get("DB_USER")
 PASS_DB = os.environ.get("DB_PASS")
 NAME_DB = os.environ.get("DB_NAME")
 HOST_DB = os.environ.get("DB_HOST")
+DB_CONNECTION = os.environ.get("DB_CONNECTION")
 
 ##
 ## Configurar a base de dados
@@ -19,14 +20,18 @@ HOST_DB = os.environ.get("DB_HOST")
 
 
 def db_connection():
-    db = psycopg.connect(
-        user= USER_DB,
-        password= PASS_DB,
-        port='5432',
-        host = HOST_DB,
-        dbname= NAME_DB,
-        row_factory=dict_row
-    )
+    
+    if(DB_CONNECTION):
+        psycopg.connect(DB_CONNECTION)
+    else:
+        db = psycopg.connect(
+            user= USER_DB,
+            password= PASS_DB,
+            port='5432',
+            host = HOST_DB,
+            dbname= NAME_DB,
+            row_factory=dict_row
+        )
     
     db.autocommit = False #Desativar autocommit para evitar problemas
     
