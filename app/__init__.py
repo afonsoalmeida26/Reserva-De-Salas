@@ -48,4 +48,4 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(salas_bp)
 app.register_blueprint(reservas_bp)
 
-CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500", "http://localhost:5500", "https://reserva-de-salas.onrender.com"])
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500", "http://localhost:5500", "https://html-reserva-de-saas.onrender.com"])
