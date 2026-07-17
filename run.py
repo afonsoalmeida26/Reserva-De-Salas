@@ -18,7 +18,7 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    host = '127.0.0.1'
+    host = '0.0.0.0'
     port = int(os.environ.get("PORT", 8080))
     
     logger.info(f'API v1.0 online: http://{host}:{port}')
