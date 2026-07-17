@@ -11,6 +11,7 @@ load_dotenv()
 USER_DB = os.environ.get("DB_USER")
 PASS_DB = os.environ.get("DB_PASS")
 NAME_DB = os.environ.get("DB_NAME")
+HOST_DB = os.environ.get("DB_HOST")
 
 ##
 ## Configurar a base de dados
@@ -23,6 +24,7 @@ def db_connection():
         password= PASS_DB,
         host='127.0.0.1',
         port='5432',
+        host = HOST_DB,
         dbname= NAME_DB,
         row_factory=dict_row
     )
