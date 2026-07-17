@@ -158,8 +158,8 @@ def criar_aluno():
             'token', #NOME DO COOKIE
             token, #TOKEN
             httponly=True, #IMPEDE ACESSO VIA JAVASCRIPT (XSS)
-            samesite='Lax', #PERMITE ENVIO DO COOKIE EM AMBIENTE LOCAL
-            secure= False #POR ENQUANTO FALSO
+            samesite='None', #PERMITE ENVIO DO COOKIE EM AMBIENTE LOCAL
+            secure= True 
         )
         
         
@@ -283,8 +283,8 @@ def login_aluno():
             'token', #NOME DO COOKIE
             token, #TOKEN
             httponly=True, #IMPEDE ACESSO VIA JAVASCRIPT (XSS)
-            samesite='Lax', #PERMITE ENVIO DO COOKIE EM AMBIENTE LOCAL
-            secure= False #POR ENQUANTO FALSO
+            samesite='None', #PERMITE ENVIO DO COOKIE EM AMBIENTE LOCAL
+            secure= True 
         )
         
         if(conn):
@@ -328,7 +328,7 @@ def logout():
         "", #TOKEN
         expires=0, #APAGAR O COOKIE IMEDIATAMENTE
         httponly=True,
-        samesite='Lax'
+        samesite='None'
     )
 
     return response, 200
