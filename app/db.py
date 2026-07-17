@@ -22,7 +22,6 @@ def db_connection():
     db = psycopg.connect(
         user= USER_DB,
         password= PASS_DB,
-        host='127.0.0.1',
         port='5432',
         host = HOST_DB,
         dbname= NAME_DB,
