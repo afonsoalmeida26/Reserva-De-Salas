@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -41,11 +41,18 @@ from app.routes.salas import salas_bp
 from app.routes.auth import auth_bp
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../Frontend')
 
 #Registar as blueprints na app "principal"
 app.register_blueprint(auth_bp)
 app.register_blueprint(salas_bp)
 app.register_blueprint(reservas_bp)
 
-CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500", "http://localhost:5500", "https://html-reserva-de-saas.onrender.com"])
+@app.route('/')
+def index():
+    
+    frontend_dir = os.path.abspath(os.path.join(app.root_path, '../Frontend'))
+    return send_from_directory(frontend_dir, 'index.html')
+
+
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500", "http://localhost:5500", "https://reserva-de-salas.onrender.com", "https://html-reserva-de-saas.onrender.com"])
