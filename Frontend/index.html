@@ -740,11 +740,6 @@ function AppView({ config, userEmail, userNome, onLogout, pwOpen, setPwOpen }) {
             </div>
           );
         })}
-        <p className="sub" style={{marginTop: 12}}>
-          O cancelamento de reservas ainda não tem endpoint no backend — assim
-          que existir, adiciono o botão aqui.
-        </p>
-
         <div className="booking-form">
           {pwOpen && (
             <form onSubmit={submitChangePassword}>
